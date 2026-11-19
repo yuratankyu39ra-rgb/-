@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>わが街のさくらガイド</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kaisei+Decol:wght@400;700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --sakura: #ffb7c5;
+      --sakura-dark: #e093a3;
+      --uguisu: #838b20;
+      --sakura-green: #8C9E5E;
+      --choco: #4a2e1b;
+      --choco-button: #6E4A35;
+      --choco-shadow: #4d3324;
+      --uguisu-shadow: #6b7a48;
+      --bg: #fdfbfb;
+      --header-height: 68px;
+      --tab-height: 76px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--choco);
+      font-family: "Zen Maru Gothic", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    body { overflow-x: hidden; }
+
+    .app-shell {
+      max-width: 448px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      position: relative;
+      box-shadow: 0 0 24px rgba(74, 46, 27, 0.08);
+    }
+
+    header {
+      height: var(--header-height);
+      position: fixed;
+      top: 0;
+      left: 50%;
+      z-index: 100;
+      width: min(448px, 100%);
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: rgba(253, 251, 251, 0.96);
+      border-bottom: 1px solid rgba(74, 46, 27, 0.12);
+      box-shadow: 0 2px 8px rgba(74, 46, 27, 0.06);
+    }
+
+    header h1 {
+      margin: 0;
+      font-family: "Kaisei Decol", serif;
+      font-size: 21px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .settings-btn {
+      min-height: 42px;
+      border: 2px solid var(--choco);
+      border-radius: 9999px;
+      background: #fff;
+      color: var(--choco);
+      padding: 7px 12px;
+      font: 700 15px "Zen Maru Gothic", sans-serif;
+      cursor: pointer;
+    }
+
+    .page {
+      display: none;
+      min-height: 100vh;
+      padding: calc(var(--header-height) + 16px) 16px calc(var(--tab-height) + 24px);
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #page-identify { padding: var(--header-height) 0 var(--tab-height); height: 100vh; }
+
+    .card {
+      margin-bottom: 16px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid rgba(74, 46, 27, 0.12);
+      border-radius: 16px;
+      box-shadow: 0 3px 10px rgba(74, 46, 27, 0.08);
+    }
+
+    .card-sakura { background: var(--sakura); border: 2px solid var(--sakura-dark); }
+    .card-green { background: #fff; border: 2px solid var(--sakura-green); }
+
+    .card h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+      font-family: "Kaisei Decol", serif;
+      font-size: 21px;
+    }
+
+    .card p { margin: 0; white-space: pre-line; }
+
+    .pukkuri-btn {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 9999px;
+      background: var(--sakura);
+      color: var(--choco);
+      box-shadow: 0 5px 0 var(--sakura-dark), 0 6px 5px rgba(74, 46, 27, 0.15);
+      font: 700 17px "Zen Maru Gothic", sans-serif;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .pukkuri-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 0 0 var(--sakura-dark), 0 1px 2px rgba(74, 46, 27, 0.15);
+    }
+
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      z-index: 100;
+      width: min(448px, 100%);
+      height: var(--tab-height);
+      transform: translateX(-50%);
+      display: flex;
+      background: #fff;
+      border-top: 1px solid rgba(74, 46, 27, 0.14);
+      box-shadow: 0 -3px 12px rgba(74, 46, 27, 0.06);
+    }
+
+    .tab-item {
+      flex: 1;
+      border: 0;
+      background: #fff;
+      color: #9ca3af;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+    }
+
+    .tab-item.active { color: #d97891; background: #fff8fa; }
+    .tab-icon { font-size: 21px; line-height: 1; }
+    .tab-label { font: 700 10px "Zen Maru Gothic", sans-serif; }
+
+    .sakura-iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: 0;
+      background: #fff;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(74, 46, 27, 0.55);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-content {
+      width: 100%;
+      max-width: 380px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+      border: 2px solid var(--choco);
+      border-radius: 20px;
+      background: var(--bg);
+      text-align: center;
+    }
+
+    .modal-content h3 {
+      margin: 0 0 12px;
+      font-family: "Kaisei Decol", serif;
+      font-size: 21px;
+    }
+
+    .setting-section {
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--sakura);
+    }
+
+    .setting-section:last-of-type { border: 0; }
+
+    .tts-toggle-btn, .lang-btn, .close-modal-btn {
+      width: 100%;
+      min-height: 48px;
+      border: 2px solid var(--choco);
+      border-radius: 9999px;
+      background: #fff;
+      color: var(--choco);
+      font: 700 16px "Zen Maru Gothic", sans-serif;
+      cursor: pointer;
+    }
+
+    .tts-toggle-btn.on, .lang-btn.selected { background: var(--sakura); }
+    .tts-note { margin: 8px 0 0; }
+
+    .lang-list { display: flex; flex-direction: column; gap: 8px; }
+    .close-modal-btn {
+      width: auto;
+      margin-top: 6px;
+      padding: 8px 32px;
+      background: var(--sakura-green);
+      color: #fff;
+      box-shadow: 0 5px 0 var(--uguisu-shadow);
+    }
+
+    body.tts-active .speakable { cursor: pointer; border-bottom: 2px dashed var(--sakura-green); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <h1 class="speakable" data-i18n="appTitle">わが街のさくらガイド</h1>
+      <button class="settings-btn" id="openSettingsBtn" aria-label="設定"><span data-i18n="settingsBtn">設定</span></button>
+    </header>
+
+    <main id="page-home" class="page active">
+      <section class="card card-sakura">
+        <h2 class="speakable" data-i18n="welcomeTitle">ようこそ！街の桜ガイドへ</h2>
+        <p class="speakable" data-i18n="welcomeDesc">QRコードを読み込んでいただきありがとうございます。街の桜の見どころ案内や、カメラで撮影した桜の品種を調べることができます。</p>
+      </section>
+
+      <section class="card">
+        <h2 class="speakable" data-i18n="spotTitle">街の桜の見どころ</h2>
+        <p class="speakable" data-i18n="spotDesc">・公園エリア：ソメイヨシノを中心に多くの桜が咲き誇ります。
+・散策コース：花びらの形や色の違いを観察しながら歩いてみましょう。</p>
+      </section>
+
+      <section class="card card-green">
+        <h2 class="speakable" data-i18n="tryIdentifyTitle">桜の品種を調べる</h2>
+        <p class="speakable" data-i18n="tryIdentifyMsg">目の前に咲いている桜の花にカメラを向けると、AIが桜の品種を判定します。</p>
+        <button class="pukkuri-btn" onclick="switchTab('identify')" data-i18n="goIdentifyBtn">さくら識別カメラを開く</button>
+      </section>
+    </main>
+
+    <main id="page-identify" class="page">
+      <iframe id="sakuraFrame" class="sakura-iframe" data-src="https://kamofumiyoshi.com/tamagawa/mori/003/" allow="camera; microphone" title="さくら識別アプリ"></iframe>
+    </main>
+
+    <nav class="tab-bar" aria-label="メインナビゲーション">
+      <button class="tab-item active" id="tab-home" onclick="switchTab('home')" aria-label="ホーム">
+        <span class="tab-icon">🏠</span><span class="tab-label" data-i18n="tabHome">ホーム</span>
+      </button>
+      <button class="tab-item" id="tab-identify" onclick="switchTab('identify')" aria-label="さくら識別">
+        <span class="tab-icon">🌸</span><span class="tab-label" data-i18n="tabIdentify">さくら識別</span>
+      </button>
+    </nav>
+
+    <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="modal-content">
+        <div class="setting-section">
+          <h3 id="settingsTitle" class="speakable" data-i18n="ttsTitle">音声読み上げ設定</h3>
+          <button class="tts-toggle-btn" id="ttsToggleBtn" onclick="toggleTTS()"><span id="ttsStatusText" data-i18n="ttsOff">音声読み上げ：OFF</span></button>
+          <p class="tts-note speakable" data-i18n="ttsDesc">ONにすると、画面の文章をタップしたときに女性の声で読み上げます。</p>
+        </div>
+        <div class="setting-section">
+          <h3 class="speakable" data-i18n="selectLangTitle">言語を選択</h3>
+          <div class="lang-list">
+            <button class="lang-btn selected" data-lang="ja" onclick="changeLanguage('ja')">日本語</button>
+            <button class="lang-btn" data-lang="en" onclick="changeLanguage('en')">English</button>
+            <button class="lang-btn" data-lang="zh" onclick="changeLanguage('zh')">中文</button>
+            <button class="lang-btn" data-lang="vi" onclick="changeLanguage('vi')">Tiếng Việt</button>
+          </div>
+        </div>
+        <button class="close-modal-btn" id="closeSettingsBtn" data-i18n="closeBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      ja: { appTitle:'わが街のさくらガイド', settingsBtn:'設定', welcomeTitle:'ようこそ！街の桜ガイドへ', welcomeDesc:'QRコードを読み込んでいただきありがとうございます。街の桜の見どころ案内や、カメラで撮影した桜の品種を調べることができます。', spotTitle:'街の桜の見どころ', spotDesc:'・公園エリア：ソメイヨシノを中心に多くの桜が咲き誇ります。\n・散策コース：花びらの形や色の違いを観察しながら歩いてみましょう。', tryIdentifyTitle:'桜の品種を調べる', tryIdentifyMsg:'目の前に咲いている桜の花にカメラを向けると、AIが桜の品種を判定します。', goIdentifyBtn:'さくら識別カメラを開く', tabHome:'ホーム', tabIdentify:'さくら識別', ttsTitle:'音声読み上げ設定', ttsOn:'音声読み上げ：ON', ttsOff:'音声読み上げ：OFF', ttsDesc:'ONにすると、画面の文章をタップしたときに女性の声で読み上げます。', ttsActivatedMsg:'音声読み上げをオンにしました。読みたい文章をタップしてください。', selectLangTitle:'言語を選択', closeBtn:'閉じる' },
+      en: { appTitle:'Town Sakura Guide', settingsBtn:'Settings', welcomeTitle:'Welcome to Town Sakura Guide', welcomeDesc:'Thank you for scanning the QR code. You can explore local cherry blossom spots and identify varieties with your camera.', spotTitle:'Local Sakura Highlights', spotDesc:'• Park Area: Numerous cherry trees, mainly Somei Yoshino, are in full bloom.\n• Walking Course: Observe differences in petal shapes and colors as you stroll.', tryIdentifyTitle:'Identify Sakura Varieties', tryIdentifyMsg:'Point your camera at the cherry blossoms in front of you, and AI will identify the variety.', goIdentifyBtn:'Open Sakura Camera', tabHome:'Home', tabIdentify:'Identify', ttsTitle:'Voice Read-Aloud', ttsOn:'Voice Read-Aloud: ON', ttsOff:'Voice Read-Aloud: OFF', ttsDesc:'When ON, tapping text on the screen will read it aloud in a female voice.', ttsActivatedMsg:'Voice read-aloud is now on. Tap any text you would like to hear.', selectLangTitle:'Select Language', closeBtn:'Close' },
+      zh: { appTitle:'本镇樱花指南', settingsBtn:'设置', welcomeTitle:'欢迎使用本镇樱花指南', welcomeDesc:'感谢您扫描二维码。您可以浏览赏樱地点，并使用相机拍摄识别樱花品种。', spotTitle:'本镇赏樱看点', spotDesc:'・公园区域：以染井吉野樱为主，众多樱花竞相开放。\n・漫步路线：观察花瓣形状和颜色的不同。', tryIdentifyTitle:'识别樱花品种', tryIdentifyMsg:'将相机对准眼前的樱花，AI将识别樱花品种。', goIdentifyBtn:'打开樱花识别相机', tabHome:'首页', tabIdentify:'樱花识别', ttsTitle:'语音朗读设置', ttsOn:'语音朗读：开启', ttsOff:'语音朗读：关闭', ttsDesc:'开启后，点击屏幕上的文字即可使用女声朗读。', ttsActivatedMsg:'已开启语音朗读，请点击想要收听的文字。', selectLangTitle:'选择语言', closeBtn:'关闭' },
+      vi: { appTitle:'Cẩm nang Hoa Anh Đào', settingsBtn:'Cài đặt', welcomeTitle:'Chào mừng đến với Cẩm nang Hoa Anh Đào', welcomeDesc:'Cảm ơn bạn đã quét mã QR. Bạn có thể khám phá các điểm ngắm hoa và nhận diện giống hoa bằng camera.', spotTitle:'Điểm ngắm hoa nổi bật', spotDesc:'• Khu vực Công viên: Nhiều cây hoa anh đào, chủ yếu là giống Somei Yoshino, đang nở rộ.\n• Tuyến dạo: Quan sát hình dáng và màu sắc cánh hoa.', tryIdentifyTitle:'Nhận diện giống hoa anh đào', tryIdentifyMsg:'Hướng camera về phía hoa anh đào trước mặt để AI nhận diện giống hoa.', goIdentifyBtn:'Mở Camera Nhận Diện', tabHome:'Trang chủ', tabIdentify:'Nhận diện', ttsTitle:'Đọc văn bản bằng giọng nói', ttsOn:'Đọc giọng nói: BẬT', ttsOff:'Đọc giọng nói: TẮT', ttsDesc:'Khi BẬT, chạm vào văn bản để nghe giọng nữ đọc.', ttsActivatedMsg:'Đã bật tính năng đọc giọng nói. Hãy chạm vào văn bản bạn muốn nghe.', selectLangTitle:'Chọn ngôn ngữ', closeBtn:'Đóng' }
+    };
+
+    let currentLang = 'ja';
+    let isTTSEnabled = false;
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById('page-' + tabName).classList.add('active');
+      document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+
+      const frame = document.getElementById('sakuraFrame');
+      if (tabName === 'identify') {
+        if (!frame.getAttribute('src')) frame.setAttribute('src', frame.dataset.src);
+        applyIframeLanguage();
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function toggleTTS() {
+      isTTSEnabled = !isTTSEnabled;
+      document.body.classList.toggle('tts-active', isTTSEnabled);
+      document.getElementById('ttsToggleBtn').classList.toggle('on', isTTSEnabled);
+      const status = document.getElementById('ttsStatusText');
+      status.innerText = isTTSEnabled ? translations[currentLang].ttsOn : translations[currentLang].ttsOff;
+      if (isTTSEnabled) speakText(translations[currentLang].ttsActivatedMsg);
+      else if ('speechSynthesis' in window) speechSynthesis.cancel();
+    }
+
+    function speakText(text) {
+      if (!isTTSEnabled || !text || !('speechSynthesis' in window)) return;
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = { ja:'ja-JP', en:'en-US', zh:'zh-CN', vi:'vi-VN' }[currentLang] || 'ja-JP';
+      utterance.rate = 0.95;
+      utterance.pitch = 1.15;
+      const voices = speechSynthesis.getVoices();
+      const langVoices = voices.filter(v => v.lang.toLower().includes(currentLang));
+      const preferred = langVoices.find(v => /female|woman|kyoko|haruka|nanami|samantha|victoria|tingting|linh|hoaimy|google/i.test(v.name));
+      if (preferred) utterance.voice = preferred;
+      else if (langVoices.length) utterance.voice = langVoices[0];
+      speechSynthesis.speak(utterance);
+    }
+
+    document.addEventListener('click', event => {
+      if (!isTTSEnabled) return;
+      const target = event.target.closest('.speakable, button');
+      if (target && target.id !== 'ttsToggleBtn') speakText(target.innerText);
+    });
+
+    const settingsModal = document.getElementById('settingsModal');
+    document.getElementById('openSettingsBtn').addEventListener('click', () => settingsModal.classList.add('open'));
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      const dict = translations[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key]) el.innerText = dict[key];
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('selected', btn.dataset.lang === lang));
+      document.getElementById('ttsStatusText').innerText = isTTSEnabled ? dict.ttsOn : dict.ttsOff;
+      applyIframeLanguage();
+      settingsModal.classList.remove('open');
+      if (isTTSEnabled) speakText(dict.welcomeTitle);
+    }
+
+    function applyIframeLanguage() {
+      const frame = document.getElementById('sakuraFrame');
+      if (!frame || !frame.getAttribute('src')) return;
+      const baseUrl = frame.dataset.src;
+      if (currentLang === 'ja') {
+        if (frame.src !== baseUrl) frame.src = baseUrl;
+      } else {
+        const translatedUrl = `https://kamofumiyoshi-com.translate.goog/tamagawa/mori/003/?_x_tr_sl=ja&_x_tr_tl=${currentLang}&_x_tr_hl=${currentLang}`;
+        if (frame.src !== translatedUrl) frame.src = translatedUrl;
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    }
+  </script>
+</body>
+</html>
